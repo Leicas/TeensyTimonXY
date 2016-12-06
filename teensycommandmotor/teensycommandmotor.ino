@@ -38,7 +38,7 @@ void setup() {
       digitalWrite(led,HIGH);
   if(Serial.available() > 0)
   {
-    char BUFFER[Serial.available()];
+    /*char BUFFER[Serial.available()];
     int index = 0;
     //Serial.println(Serial.available());
     while(Serial.peek() != 10)
@@ -46,8 +46,9 @@ void setup() {
     BUFFER[index] = Serial.read();
     index++;
     }
-    Serial.read();
-    sscanf(BUFFER,"%f",&force1);
+    Serial.read();*/
+    String data = Serial.readStringUntil('\r\n');
+    sscanf(data.c_str(),"%f",&force1);
     Serial.println(force1);
     motor1 =(int)( abs(force1)/8.0*80.0/100.0*(float)pwmmax+10.0/100.0*(float)pwmmax);
      if(motor1 <= 10.0/100.0*pwmmax)
@@ -103,7 +104,7 @@ void setup() {
   }
 
       //to control the teensy frequency
-      while ((micros()-lasttime) <= 1000) {
+      while ((micros()-lasttime) <= 250) {
       digitalWrite(led,LOW);
       }
       lasttime = micros();
