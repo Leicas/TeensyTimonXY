@@ -11,7 +11,8 @@ const int m11 =  6;
 const int m12 = 5;
 const int m13 =  4;
 const int m1p = 3;
-
+int motor1= 0;
+float force1 = 0.0;
 ////////////////////// Setup //////////////////////
 void setup() {
   
@@ -35,12 +36,39 @@ void setup() {
 ////////////////////// LOOP //////////////////////  
   void loop() {
       digitalWrite(led,HIGH);
+  if(Serial.available() > 0)
+  {
+    char BUFFER[Serial.available()];
+    int index = 0;
+    //Serial.println(Serial.available());
+    while(Serial.peek() != 10)
+    {
+    BUFFER[index] = Serial.read();
+    index++;
+    }
+    Serial.read();
+    sscanf(BUFFER,"%f",&force1);
+    Serial.println(force1);
+    motor1 =(int)( abs(force1)/8.0*80.0/100.0*(float)pwmmax+10.0/100.0*(float)pwmmax);
+     if(motor1 <= 10.0/100.0*pwmmax)
+  {
+    motor1 = 10.0/100.0*pwmmax;
+  }
+  if(motor1 >= 90.0/100.0* pwmmax)
+  {
+     motor1 = 90.0/100.0*pwmmax;
+  }
+  }
     /// Motor 1
-  i++;
+  if (force1 < 0) {i--;} else {i++;}
+  //i--;
   if (i>5) {
   i=0;
   }
-  analogWrite(m1p,pwmmax/3.0*2.0);
+  if (i<0) {
+    i=5;
+  }
+  analogWrite(m1p,motor1);
    switch (i) {
     case 0:
       digitalWrite(m11, HIGH);  
