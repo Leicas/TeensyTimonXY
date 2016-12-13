@@ -296,7 +296,7 @@ void UpdatePointer(int ncs) {
     {
     UpdatePointer(s);
     }
-     while ((micros()-lasttime) <= 1111) {
+     while ((micros()-lasttime) <= 2000) {
       digitalWrite(13,LOW);
       }
       lasttime = micros();

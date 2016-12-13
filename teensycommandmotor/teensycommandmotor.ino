@@ -9,10 +9,10 @@ const int resolution = 16;
 int pwmmax;
 /// Motor s ///
 
-const int m11 =  23;
-const int m12 = 22;
-const int m13 =  21;
-const int m1p = 20;
+const int m31 =  23;
+const int m32 = 22;
+const int m33 =  21;
+const int m3p = 20;
 
 
 const int m21 =  12;
@@ -20,10 +20,10 @@ const int m22 = 11;
 const int m23 =  10;
 const int m2p = 9;
 
-const int m31 =  6;
-const int m32 = 5;
-const int m33 =  4;
-const int m3p = 3;
+const int m11 =  6;
+const int m12 = 5;
+const int m13 =  4;
+const int m1p = 3;
 
 int motor1= 0;
 float force1 = 0.0;
@@ -33,6 +33,10 @@ float force2= 0.0;
 
 int motor3= 0;
 float force3= 0.0;
+
+float forcex = 0.0;
+float forcey= 0.0;
+float rot = 0.0;
 ////////////////////// Setup //////////////////////
 void setup() {
   
@@ -53,6 +57,7 @@ void setup() {
     analogWriteResolution(resolution);
   pwmmax = pow(2,resolution);  
   Serial.begin(9600);
+  Serial.setTimeout(1);
   
   //lcd.begin(20, 4);
   //lcd.clear();  
@@ -64,39 +69,7 @@ void setup() {
 ////////////////////// LOOP //////////////////////  
   void loop() {
       digitalWrite(led,HIGH);
-  if(Serial.available() > 0)
-  {
-    String data = Serial.readStringUntil('\r\n');
-    sscanf(data.c_str(),"%f;%f;%f",&force1,&force2,&force3);
-    Serial.println(String(force1) + " " + String(force2) + " " + String(force3));
-    motor1 =(int)( abs(force1)/8.0*80.0/100.0*(float)pwmmax+10.0/100.0*(float)pwmmax);
-     if(motor1 <= 10.0/100.0*pwmmax)
-  {
-    motor1 = 10.0/100.0*pwmmax;
-  }
-  if(motor1 >= 90.0/100.0* pwmmax)
-  {
-     motor1 = 90.0/100.0*pwmmax;
-  }
-   motor2 =(int)( abs(force2)/8.0*80.0/100.0*(float)pwmmax+10.0/100.0*(float)pwmmax);
-     if(motor2 <= 10.0/100.0*pwmmax)
-  {
-    motor2 = 10.0/100.0*pwmmax;
-  }
-  if(motor2 >= 90.0/100.0* pwmmax)
-  {
-     motor2 = 90.0/100.0*pwmmax;
-  }
-   motor3 =(int)( abs(force3)/8.0*80.0/100.0*(float)pwmmax+10.0/100.0*(float)pwmmax);
-     if(motor3 <= 10.0/100.0*pwmmax)
-  {
-    motor3 = 10.0/100.0*pwmmax;
-  }
-  if(motor3 >= 90.0/100.0* pwmmax)
-  {
-     motor3 = 90.0/100.0*pwmmax;
-  }
-  }
+  
     /// Motor 1
   if (force1 < 0) {i--;} else {i++;}
   //i--;
@@ -139,6 +112,50 @@ void setup() {
   digitalWrite(m31,k==0||k==1||k==2);
   digitalWrite(m32,k==2||k==3||k==4);
   digitalWrite(m33,k==4||k==5||k==0);
+
+  if(Serial.available() > 0)
+  {
+    
+    String data = Serial.readStringUntil('\r\n');
+    //String data = "0.00;0.00;0.00";
+    char *cstr = &data[0u];
+    forcex = atof(strtok(cstr,";"));
+    forcey = atof(strtok(NULL,";"));
+    rot = atof(strtok(NULL,";"));
+    //sscanf(data.c_str(),"%f;%f;%f",&forcex,&forcey,&rot);
+    //Serial.println(String(forcex) + " " + String(forcey) + " " + String(rot));
+    force1=2./3.*forcex+1./3.*rot;
+    force2=-1./3.*(forcex-sqrt(3)*forcey)+1./3.*rot;
+    force3=-1./3.*(forcex+sqrt(3)*forcey)+1./3.*rot;
+   
+    motor1 =(int)( abs(force1)/8.0*80.0/100.0*(float)pwmmax+10.0/100.0*(float)pwmmax);
+     if(motor1 <= 10.0/100.0*pwmmax)
+  {
+    motor1 = 10.0/100.0*pwmmax;
+  }
+  if(motor1 >= 90.0/100.0* pwmmax)
+  {
+     motor1 = 90.0/100.0*pwmmax;
+  }
+   motor2 =(int)( abs(force2)/8.0*80.0/100.0*(float)pwmmax+10.0/100.0*(float)pwmmax);
+     if(motor2 <= 10.0/100.0*pwmmax)
+  {
+    motor2 = 10.0/100.0*pwmmax;
+  }
+  if(motor2 >= 90.0/100.0* pwmmax)
+  {
+     motor2 = 90.0/100.0*pwmmax;
+  }
+   motor3 =(int)( abs(force3)/8.0*80.0/100.0*(float)pwmmax+10.0/100.0*(float)pwmmax);
+     if(motor3 <= 10.0/100.0*pwmmax)
+  {
+    motor3 = 10.0/100.0*pwmmax;
+  }
+  if(motor3 >= 90.0/100.0* pwmmax)
+  {
+     motor3 = 90.0/100.0*pwmmax;
+  }
+  }
 
   //////////////////////////////////////////////////
        //// Realtime controll
